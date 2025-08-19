@@ -35,7 +35,8 @@ body {
   text-align: center;
   box-sizing: border-box;
 }
-h1 { margin:0 0 16px; font-size:20px; font-weight:600; }
+h1, h2, h3 { margin:0 0 16px; font-weight:600; }
+h1{ font-size:20px; }
 .menu-grid { display:flex; flex-direction:column; gap:12px; }
 .menu-grid button {
   height:60px;
@@ -91,7 +92,7 @@ th, td { padding:6px; text-align:center; }
 }
 #confirmAnswerBtn{ background: var(--danger-color); }
 #confirmAnswerBtn:disabled{ background:#f0a6aa; }
-#startQuizBtn{ background: var(--danger-color); } /* 紅色開始答題 */
+#startQuizBtn{ background: var(--danger-color); }
 </style>
 </head>
 <body>
@@ -137,7 +138,7 @@ th, td { padding:6px; text-align:center; }
       <label>選項 B：<input type="text" id="optionB" /></label>
       <label>選項 C：<input type="text" id="optionC" /></label>
       <label>選項 D：<input type="text" id="optionD" /></label>
-      <label>正確答案（A-D）：<input type="text" id="correctOption" /></label>
+      <label>正確答案（A-D）：<input type="text" id="correctOption" maxlength="1" /></label>
 
       <div id="questionActions" style="margin-bottom:12px;">
         <button id="addQuestionBtn">新增題目</button>
@@ -212,8 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const showSection = name => {
     Object.values(sections).forEach(s => s.classList.remove('active'));
     sections[name].classList.add('active');
-
-    // 問答遊戲回主選單清理
     if(name==='menu'){
       quizArea.style.display='none';
       playerSetup.style.display='block';
@@ -240,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let playerAnswers=[];
   let playerName='';
   let selectedAnswer=null;
-  let playerNameSet = new Set();
   const playerNameInput=document.getElementById('playerName');
   const quizArea=document.getElementById('quizArea');
   const questionText=document.getElementById('questionText');
@@ -249,6 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const startQuizBtn=document.getElementById('startQuizBtn');
   const confirmAnswerBtn=document.getElementById('confirmAnswerBtn');
   const playerSetup=document.getElementById('playerSetup');
+
+  const MAX_PLAYERS=50;
+  const MAX_QUESTIONS=10;
 
   function loadQuestion(){
     const q = questions[currentQuestionIndex];
@@ -261,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn=document.createElement('button');
         btn.textContent=`${k}: ${q[k]}`;
         btn.className='optionBtn';
-        btn.style.backgroundColor = '#2b7a78'; // 綠色
+        btn.style.backgroundColor = '#2b7a78';
         btn.onclick=()=>{
           selectedAnswer=k;
           confirmAnswerBtn.disabled=false;
@@ -288,7 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startQuiz(){
     const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
-    playerNameSet = new Set(rankingData.map(p=>p.name));
+    if(rankingData.length>=MAX_PLAYERS){ alert(`玩家數已達上限 ${MAX_PLAYERS}`); return; }
+    const playerNameSet = new Set(rankingData.map(p=>p.name));
     playerName=playerNameInput.value.trim();
     if(!playerName){ alert('請輸入玩家名稱'); return; }
     if(playerNameSet.has(playerName)){ alert('玩家名稱已存在，請輸入新名稱'); return; }
@@ -315,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
     html+=`</ol><p>總分：${score}</p>`;
     quizResult.innerHTML=html;
 
-    // 更新排行榜
     const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
     rankingData.push({ name: playerName, score });
     localStorage.setItem('ranking', JSON.stringify(rankingData));
@@ -327,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginAdminBtn=document.getElementById('loginAdminBtn');
   const adminPassword=document.getElementById('adminPassword');
   const adminPanel=document.getElementById('adminPanel');
+  const adminLogin=document.getElementById('adminLogin');
   const addQuestionBtn=document.getElementById('addQuestionBtn');
   const newQuestion=document.getElementById('newQuestion');
   const optionA=document.getElementById('optionA');
@@ -370,9 +372,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   addQuestionBtn.onclick=()=>{
+    if(questions.length>=MAX_QUESTIONS){ alert(`題目數已達上限 ${MAX_QUESTIONS}`); return; }
     if(!newQuestion.value.trim() || !optionA.value.trim() || !optionB.value.trim()){
-      alert('題目、選項A、選項B為必填欄位');
-      return;
+      alert('題目、選項A、選項B為必填欄位'); return;
     }
     const q={ question:newQuestion.value.trim(),
               A:optionA.value.trim(),
@@ -393,75 +395,65 @@ document.addEventListener('DOMContentLoaded', () => {
       const lines = e.target.result.split('\n');
       lines.forEach(line=>{
         const [q,a,b,c,d,correct]=line.split(',');
-        if(q && a && b){
-          questions.push({question:q,A:a,B:b,C:c,D:d,correct:correct});
+        if(q && a && b && questions.length<MAX_QUESTIONS){
+          questions.push({question:q,A:a,B:b,C:c||'',D:d||'',correct:correct||''});
         }
       });
       saveQuestions(); updateQuestionTable();
     };
-    reader.readAsText(file);
-  }
+    reader.readAsText(file, 'UTF-8');
+  };
 
   exportCSVBtn.onclick=()=>{
-    const csv = questions.map(q=>[q.question,q.A,q.B,q.C,q.D,q.correct].join(',')).join('\n');
+    let csv='question,A,B,C,D,correct\n';
+    questions.forEach(q=>{ csv+=`${q.question},${q.A},${q.B},${q.C},${q.D},${q.correct}\n`; });
     const blob=new Blob([csv],{type:'text/csv'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download='questions.csv'; a.click();
-    URL.revokeObjectURL(url);
-  }
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='questions.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
 
   updateQuestionTable();
 
   // -------------------------- 排行榜
+  const rankingTableBody=document.querySelector('#rankingTable tbody');
   let rankingPassVerified=false;
-  const rankingTableBody=rankingTable.querySelector('tbody');
+  let rankingDelIndex=null;
   const rankingPassModal=document.getElementById('rankingPassModal');
   const rankingPassInput=document.getElementById('rankingPassInput');
   const rankingPassConfirm=document.getElementById('rankingPassConfirm');
   const rankingPassCancel=document.getElementById('rankingPassCancel');
 
   function updateRankingTable(){
-    const data=JSON.parse(localStorage.getItem('ranking')||'[]');
+    const data = JSON.parse(localStorage.getItem('ranking')||'[]');
     rankingTableBody.innerHTML='';
     data.forEach((r,i)=>{
       const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${r.name}</td><td>${r.score}</td>`;
+      const nameTd=document.createElement('td'); nameTd.textContent=r.name; tr.appendChild(nameTd);
+      const scoreTd=document.createElement('td'); scoreTd.textContent=r.score; tr.appendChild(scoreTd);
       const delTd=document.createElement('td');
-      const delBtn=document.createElement('button');
-      delBtn.textContent='刪除';
-      delBtn.onclick=()=> handleRankingDelete(i);
-      delTd.appendChild(delBtn);
-      tr.appendChild(delTd);
+      const delBtn=document.createElement('button'); delBtn.textContent='刪除';
+      delBtn.onclick=()=>{
+        rankingDelIndex=i;
+        rankingPassInput.value=''; rankingPassModal.style.display='flex';
+      };
+      delTd.appendChild(delBtn); tr.appendChild(delTd);
       rankingTableBody.appendChild(tr);
     });
   }
 
-  function handleRankingDelete(index){
-    const data=JSON.parse(localStorage.getItem('ranking')||'[]');
-    const doDelete=()=>{
-      data.splice(index,1);
-      localStorage.setItem('ranking',JSON.stringify(data));
+  rankingPassCancel.onclick=()=>{ rankingPassModal.style.display='none'; };
+  rankingPassConfirm.onclick=()=>{
+    if(rankingPassInput.value===adminPass){
+      const data=JSON.parse(localStorage.getItem('ranking')||'[]');
+      data.splice(rankingDelIndex,1);
+      localStorage.setItem('ranking', JSON.stringify(data));
+      rankingDelIndex=null; rankingPassModal.style.display='none';
       updateRankingTable();
-    };
-    if(rankingPassVerified){ doDelete(); return; }
-    rankingPassModal.style.display='flex';
-    rankingPassInput.value='';
-    rankingPassInput.focus();
-
-    function confirmPass(){
-      if(rankingPassInput.value===adminPass){
-        rankingPassVerified=true;
-        doDelete();
-        rankingPassModal.style.display='none';
-      } else alert('密碼錯誤');
-    }
-    rankingPassConfirm.onclick=confirmPass;
-    rankingPassInput.onkeypress=e=>{ if(e.key==='Enter') confirmPass(); };
-    rankingPassCancel.onclick=()=>{ rankingPassModal.style.display='none'; };
-  }
+    }else alert('密碼錯誤');
+  };
 
   updateRankingTable();
+
 });
 </script>
 </body>
