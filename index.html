@@ -6,6 +6,7 @@
 <title>問答遊戲系統</title>
 <link rel="icon" href="img/icon-180.png" type="image/png" />
 <style>
+/* ===== 基本樣式與配色 ===== */
 :root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans CJK TC', 'Helvetica Neue', Arial;
   --main-color: #2b7a78;
@@ -35,8 +36,9 @@ body {
   text-align: center;
   box-sizing: border-box;
 }
-h1, h2, h3 { margin:0 0 16px; font-weight:600; }
-h1{ font-size:20px; }
+h1 { margin:0 0 16px; font-size:20px; font-weight:600; }
+
+/* ===== 主選單 ===== */
 .menu-grid { display:flex; flex-direction:column; gap:12px; }
 .menu-grid button {
   height:60px;
@@ -51,9 +53,11 @@ h1{ font-size:20px; }
 .menu-grid button:hover:not(:disabled){ background: #4CAF50; } /* 淡綠色 */
 .menu-grid button:disabled{ background:#99b3b2; cursor:not-allowed; }
 
+/* ===== 區塊切換 ===== */
 .section { display:none; text-align:left; }
 .section.active{ display:block; }
 
+/* ===== 回主選單按鈕 ===== */
 .backBtn {
   margin-top:20px;
   padding:12px 0;
@@ -66,14 +70,20 @@ h1{ font-size:20px; }
   transition: background-color 0.2s ease;
 }
 .backBtn:hover{ background:#4CAF50; }
+
+/* ===== 表單輸入 ===== */
 input, select, textarea { font-size:1em; width:100%; padding:6px; margin:4px 0 12px; box-sizing:border-box; }
+
+/* ===== 表格 ===== */
 table{ width:100%; border-collapse:collapse; }
 table, th, td { border:1px solid #ccc; }
 th, td { padding:6px; text-align:center; }
 
+/* ===== 題目管理匯入匯出列 ===== */
 #questionManage div.flex-row{ display:flex; gap:6px; flex-wrap:nowrap; align-items:center; margin-bottom:12px; }
 #questionManage div.flex-row button, #questionManage div.flex-row input[type=file]{ margin-bottom:0; flex:1; }
 
+/* ===== 問答遊戲按鈕 ===== */
 .optionBtn, #confirmAnswerBtn, #startQuizBtn{
   display:block;
   width:100%;
@@ -92,12 +102,12 @@ th, td { padding:6px; text-align:center; }
 }
 #confirmAnswerBtn{ background: var(--danger-color); }
 #confirmAnswerBtn:disabled{ background:#f0a6aa; }
-#startQuizBtn{ background: var(--danger-color); }
+#startQuizBtn{ background: var(--danger-color); } /* 紅色開始答題 */
 </style>
 </head>
 <body>
 <div class="card">
-  <!-- 主選單 -->
+  <!-- ================== 主選單 ================== -->
   <div id="menu" class="section active">
     <h1>問答遊戲系統</h1>
     <div class="menu-grid">
@@ -109,7 +119,7 @@ th, td { padding:6px; text-align:center; }
     </div>
   </div>
 
-  <!-- 問答遊戲 -->
+  <!-- ================== 問答遊戲 ================== -->
   <div id="quiz" class="section">
     <h1>問答遊戲</h1>
     <div id="playerSetup">
@@ -125,7 +135,7 @@ th, td { padding:6px; text-align:center; }
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- 題目管理 -->
+  <!-- ================== 題目管理 ================== -->
   <div id="questionManage" class="section">
     <h1>題目管理（管理員）</h1>
     <div id="adminLogin">
@@ -138,15 +148,19 @@ th, td { padding:6px; text-align:center; }
       <label>選項 B：<input type="text" id="optionB" /></label>
       <label>選項 C：<input type="text" id="optionC" /></label>
       <label>選項 D：<input type="text" id="optionD" /></label>
-      <label>正確答案（A-D）：<input type="text" id="correctOption" maxlength="1" /></label>
+      <label>正確答案（A-D）：<input type="text" id="correctOption" /></label>
 
       <div id="questionActions" style="margin-bottom:12px;">
         <button id="addQuestionBtn">新增題目</button>
       </div>
-      <div class="flex-row">
+
+      <!-- 匯入/匯出 CSV -->
+      <div style="margin-bottom:6px;">
         <input type="file" id="importCSV" accept=".csv" />
-        <button id="importBtn">匯入 CSV</button>
-        <button id="exportCSVBtn">匯出 CSV</button>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:12px;">
+        <button id="importBtn" style="flex:1;">匯入 CSV</button>
+        <button id="exportCSVBtn" style="flex:1;">匯出 CSV</button>
       </div>
 
       <table id="questionTable">
@@ -157,7 +171,7 @@ th, td { padding:6px; text-align:center; }
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- 排行榜 -->
+  <!-- ================== 排行榜 ================== -->
   <div id="ranking" class="section">
     <h1>排行榜</h1>
     <table id="rankingTable">
@@ -167,14 +181,14 @@ th, td { padding:6px; text-align:center; }
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- 使用說明 -->
+  <!-- ================== 使用說明 ================== -->
   <div id="help" class="section">
     <h2>📖 使用說明</h2>
-    <p>這是遊戲的基本使用說明：點選問答遊戲開始答題，輸入玩家名稱即可開始。題目管理與排行榜有管理員權限限制。完成答題後可查看分數與答案。</p>
+    <p>點選問答遊戲開始答題，輸入玩家名稱即可開始。題目管理與排行榜有管理員權限限制。完成答題後可查看分數與答案。</p>
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- 加入手機主畫面說明 -->
+  <!-- ================== 加入手機主畫面說明 ================== -->
   <div id="helpAdd" class="section">
     <h2>📱 加入手機主畫面說明</h2>
     <h3>iOS（Safari）</h3>
@@ -195,7 +209,7 @@ th, td { padding:6px; text-align:center; }
   </div>
 </div>
 
-<!-- 排行榜刪除密碼 Modal -->
+<!-- ================== 排行榜刪除密碼 Modal ================== -->
 <div id="rankingPassModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
   <div style="background:#fff; padding:20px; border-radius:8px; width:300px;">
     <p>輸入管理者密碼刪除：</p>
@@ -207,8 +221,10 @@ th, td { padding:6px; text-align:center; }
   </div>
 </div>
 
+<!-- ================== JavaScript ================== -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  /* -------------------- 區塊切換 -------------------- */
   const sections = { menu, quiz, questionManage, ranking, help, helpAdd };
   const showSection = name => {
     Object.values(sections).forEach(s => s.classList.remove('active'));
@@ -233,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
   goToHelpAdd.onclick = ()=>showSection('helpAdd');
   document.querySelectorAll('.backBtn').forEach(btn=>btn.onclick=e=>showSection(e.target.dataset.back));
 
-  // -------------------------- 問答遊戲
+  /* -------------------- 問答遊戲 -------------------- */
   let questions = JSON.parse(localStorage.getItem('questions')||'[]');
   let currentQuestionIndex=0;
   let playerAnswers=[];
@@ -247,9 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const startQuizBtn=document.getElementById('startQuizBtn');
   const confirmAnswerBtn=document.getElementById('confirmAnswerBtn');
   const playerSetup=document.getElementById('playerSetup');
-
-  const MAX_PLAYERS=50;
-  const MAX_QUESTIONS=10;
 
   function loadQuestion(){
     const q = questions[currentQuestionIndex];
@@ -289,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startQuiz(){
     const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
-    if(rankingData.length>=MAX_PLAYERS){ alert(`玩家數已達上限 ${MAX_PLAYERS}`); return; }
     const playerNameSet = new Set(rankingData.map(p=>p.name));
     playerName=playerNameInput.value.trim();
     if(!playerName){ alert('請輸入玩家名稱'); return; }
@@ -317,18 +329,21 @@ document.addEventListener('DOMContentLoaded', () => {
     html+=`</ol><p>總分：${score}</p>`;
     quizResult.innerHTML=html;
 
+    // 更新排行榜
     const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
+    if(rankingData.length >= 50){ // 玩家上限 50
+      rankingData.shift(); // 刪掉最舊玩家
+    }
     rankingData.push({ name: playerName, score });
     localStorage.setItem('ranking', JSON.stringify(rankingData));
     updateRankingTable();
   }
 
-  // -------------------------- 題目管理
+  /* -------------------- 題目管理 -------------------- */
   const adminPass='admin123';
   const loginAdminBtn=document.getElementById('loginAdminBtn');
   const adminPassword=document.getElementById('adminPassword');
   const adminPanel=document.getElementById('adminPanel');
-  const adminLogin=document.getElementById('adminLogin');
   const addQuestionBtn=document.getElementById('addQuestionBtn');
   const newQuestion=document.getElementById('newQuestion');
   const optionA=document.getElementById('optionA');
@@ -364,7 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const delTd=document.createElement('td');
       const delBtn=document.createElement('button');
       delBtn.textContent='刪除';
-      delBtn.onclick=()=>{ questions.splice(i,1); saveQuestions(); updateQuestionTable(); };
+      delBtn.onclick=()=>{
+        questions.splice(i,1); saveQuestions(); updateQuestionTable();
+      };
       delTd.appendChild(delBtn);
       tr.appendChild(delTd);
       tbody.appendChild(tr);
@@ -372,88 +389,106 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   addQuestionBtn.onclick=()=>{
-    if(questions.length>=MAX_QUESTIONS){ alert(`題目數已達上限 ${MAX_QUESTIONS}`); return; }
-    if(!newQuestion.value.trim() || !optionA.value.trim() || !optionB.value.trim()){
-      alert('題目、選項A、選項B為必填欄位'); return;
-    }
-    const q={ question:newQuestion.value.trim(),
-              A:optionA.value.trim(),
-              B:optionB.value.trim(),
-              C:optionC.value.trim(),
-              D:optionD.value.trim(),
-              correct:correctOption.value.trim().toUpperCase() };
-    questions.push(q); saveQuestions(); updateQuestionTable();
-  }
+    if(questions.length>=10){ alert('題目已達上限 10 題'); return; }
+    if(!newQuestion.value.trim() || !optionA.value.trim() || !optionB.value.trim()){ alert('題目、A、B為必填'); return; }
+    questions.push({
+      question:newQuestion.value,
+      A:optionA.value, B:optionB.value,
+      C:optionC.value||'',
+      D:optionD.value||'',
+      correct:(correctOption.value||'A').toUpperCase()
+    });
+    saveQuestions();
+    updateQuestionTable();
+    newQuestion.value=''; optionA.value=''; optionB.value=''; optionC.value=''; optionD.value=''; correctOption.value='';
+  };
 
   function saveQuestions(){ localStorage.setItem('questions', JSON.stringify(questions)); }
 
+  // 匯入 CSV（先清空再匯入）
   importBtn.onclick=()=>{
     const file = importCSV.files[0];
     if(!file) return;
-    const reader = new FileReader();
+    const reader=new FileReader();
     reader.onload=e=>{
-      const lines = e.target.result.split('\n');
-      lines.forEach(line=>{
+      const lines=e.target.result.split('\n');
+      questions=[];
+      for(let line of lines){
+        if(questions.length>=10) break;
         const [q,a,b,c,d,correct]=line.split(',');
-        if(q && a && b && questions.length<MAX_QUESTIONS){
-          questions.push({question:q,A:a,B:b,C:c||'',D:d||'',correct:correct||''});
+        if(q && a && b){
+          questions.push({question:q,A:a,B:b,C:c||'',D:d||'',correct:(correct||'A').toUpperCase()});
         }
-      });
-      saveQuestions(); updateQuestionTable();
+      }
+      saveQuestions();
+      updateQuestionTable();
+      alert('CSV 匯入完成');
     };
-    reader.readAsText(file, 'UTF-8');
+    reader.readAsText(file,'UTF-8');
   };
 
+  // 匯出 CSV
   exportCSVBtn.onclick=()=>{
     let csv='question,A,B,C,D,correct\n';
-    questions.forEach(q=>{ csv+=`${q.question},${q.A},${q.B},${q.C},${q.D},${q.correct}\n`; });
+    questions.forEach(q=>csv+=`${q.question},${q.A},${q.B},${q.C},${q.D},${q.correct}\n`);
     const blob=new Blob([csv],{type:'text/csv'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    a.download='questions.csv'; a.click(); URL.revokeObjectURL(a.href);
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='questions.csv'; a.click();
+    URL.revokeObjectURL(url);
   };
 
-  updateQuestionTable();
-
-  // -------------------------- 排行榜
-  const rankingTableBody=document.querySelector('#rankingTable tbody');
+  /* -------------------- 排行榜 -------------------- */
   let rankingPassVerified=false;
-  let rankingDelIndex=null;
+  const rankingTable=document.getElementById('rankingTable').querySelector('tbody');
   const rankingPassModal=document.getElementById('rankingPassModal');
   const rankingPassInput=document.getElementById('rankingPassInput');
   const rankingPassConfirm=document.getElementById('rankingPassConfirm');
   const rankingPassCancel=document.getElementById('rankingPassCancel');
 
   function updateRankingTable(){
-    const data = JSON.parse(localStorage.getItem('ranking')||'[]');
-    rankingTableBody.innerHTML='';
-    data.forEach((r,i)=>{
+    rankingTable.innerHTML='';
+    const rankingData=JSON.parse(localStorage.getItem('ranking')||'[]');
+    rankingData.forEach((p,i)=>{
       const tr=document.createElement('tr');
-      const nameTd=document.createElement('td'); nameTd.textContent=r.name; tr.appendChild(nameTd);
-      const scoreTd=document.createElement('td'); scoreTd.textContent=r.score; tr.appendChild(scoreTd);
+      tr.innerHTML=`<td>${p.name}</td><td>${p.score}</td>`;
       const delTd=document.createElement('td');
-      const delBtn=document.createElement('button'); delBtn.textContent='刪除';
-      delBtn.onclick=()=>{
-        rankingDelIndex=i;
-        rankingPassInput.value=''; rankingPassModal.style.display='flex';
-      };
-      delTd.appendChild(delBtn); tr.appendChild(delTd);
-      rankingTableBody.appendChild(tr);
+      const delBtn=document.createElement('button');
+      delBtn.textContent='刪除';
+      delBtn.onclick=()=>handleRankingDelete(i);
+      delTd.appendChild(delBtn);
+      tr.appendChild(delTd);
+      rankingTable.appendChild(tr);
     });
   }
 
-  rankingPassCancel.onclick=()=>{ rankingPassModal.style.display='none'; };
-  rankingPassConfirm.onclick=()=>{
-    if(rankingPassInput.value===adminPass){
-      const data=JSON.parse(localStorage.getItem('ranking')||'[]');
-      data.splice(rankingDelIndex,1);
-      localStorage.setItem('ranking', JSON.stringify(data));
-      rankingDelIndex=null; rankingPassModal.style.display='none';
-      updateRankingTable();
-    }else alert('密碼錯誤');
-  };
+  function handleRankingDelete(index){
+    if(rankingPassVerified){
+      deleteRanking(index);
+    }else{
+      rankingPassModal.style.display='flex';
+      rankingPassInput.value='';
+      rankingPassInput.focus();
+      rankingPassConfirm.onclick=()=>{
+        if(rankingPassInput.value===adminPass){
+          rankingPassVerified=true;
+          deleteRanking(index);
+          rankingPassModal.style.display='none';
+        }else alert('密碼錯誤');
+      };
+      rankingPassCancel.onclick=()=>{ rankingPassModal.style.display='none'; };
+    }
+  }
 
+  function deleteRanking(index){
+    const rankingData=JSON.parse(localStorage.getItem('ranking')||'[]');
+    rankingData.splice(index,1);
+    localStorage.setItem('ranking',JSON.stringify(rankingData));
+    updateRankingTable();
+  }
+
+  updateQuestionTable();
   updateRankingTable();
-
 });
 </script>
 </body>
