@@ -31,3 +31,6 @@ th{ background:#f4f4f4; }
 .modal-content{ background:#fff; padding:20px; border-radius:12px; width:90%; max-width:300px; text-align:center; }
 .modal-btns{ display:flex; justify-content:space-around; margin-top:12px; }
 .modal input{ width:80%; margin:0 auto; display:block; }
+
+/* 可展開文字 */
+.expandable{cursor:pointer;}
