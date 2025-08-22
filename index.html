@@ -4,492 +4,93 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>問答遊戲系統</title>
-<link rel="icon" href="img/icon-180.png" type="image/png" />
-<style>
-/* ===== 基本樣式與配色 ===== */
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans CJK TC', 'Helvetica Neue', Arial;
-  --main-color: #2b7a78;
-  --main-hover: #3a9996;
-  --bg-color: #faf6ec;
-  --card-bg: #fff;
-  --shadow-color: rgba(0,0,0,0.08);
-  --danger-color: #e63946;
-}
-body {
-  margin: 0;
-  background: var(--bg-color);
-  color: #222;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding-top: 40px;
-}
-.card {
-  background: var(--card-bg);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 22px var(--shadow-color);
-  width: 360px;
-  max-width: 95vw;
-  text-align: center;
-  box-sizing: border-box;
-}
-h1 { margin:0 0 16px; font-size:20px; font-weight:600; }
-
-/* ===== 主選單 ===== */
-.menu-grid { display:flex; flex-direction:column; gap:12px; }
-.menu-grid button {
-  height:60px;
-  font-size:clamp(1rem,2vw,1.5rem);
-  border-radius:8px;
-  border:none;
-  background: var(--main-color);
-  color:#fff;
-  cursor:pointer;
-  transition: background-color 0.2s ease;
-}
-.menu-grid button:hover:not(:disabled){ background: #4CAF50; } /* 淡綠色 */
-.menu-grid button:disabled{ background:#99b3b2; cursor:not-allowed; }
-
-/* ===== 區塊切換 ===== */
-.section { display:none; text-align:left; }
-.section.active{ display:block; }
-
-/* ===== 回主選單按鈕 ===== */
-.backBtn {
-  margin-top:20px;
-  padding:12px 0;
-  width:100%;
-  border-radius:8px;
-  border:none;
-  background: #2b7a78;
-  color:#fff;
-  cursor:pointer;
-  transition: background-color 0.2s ease;
-}
-.backBtn:hover{ background:#4CAF50; }
-
-/* ===== 表單輸入 ===== */
-input, select, textarea { font-size:1em; width:100%; padding:6px; margin:4px 0 12px; box-sizing:border-box; }
-
-/* ===== 表格 ===== */
-table{ width:100%; border-collapse:collapse; }
-table, th, td { border:1px solid #ccc; }
-th, td { padding:6px; text-align:center; }
-
-/* ===== 題目管理匯入匯出列 ===== */
-#questionManage div.flex-row{ display:flex; gap:6px; flex-wrap:nowrap; align-items:center; margin-bottom:12px; }
-#questionManage div.flex-row button, #questionManage div.flex-row input[type=file]{ margin-bottom:0; flex:1; }
-
-/* ===== 問答遊戲按鈕 ===== */
-.optionBtn, #confirmAnswerBtn, #startQuizBtn{
-  display:block;
-  width:100%;
-  padding:12px 0;
-  margin-bottom:6px;
-  border-radius:8px;
-  border:none;
-  background: var(--main-color);
-  color:#fff;
-  cursor:pointer;
-  font-size:1rem;
-}
-.optionBtn:disabled, #confirmAnswerBtn:disabled, #startQuizBtn:disabled{
-  background:#99b3b2;
-  cursor:not-allowed;
-}
-#confirmAnswerBtn{ background: var(--danger-color); }
-#confirmAnswerBtn:disabled{ background:#f0a6aa; }
-#startQuizBtn{ background: var(--danger-color); } /* 紅色開始答題 */
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="card">
-  <!-- ================== 主選單 ================== -->
+  <!-- 主選單 -->
   <div id="menu" class="section active">
     <h1>問答遊戲系統</h1>
     <div class="menu-grid">
       <button id="goToQuiz">📝 問答遊戲</button>
       <button id="goToQuestionManage">📚 題目管理</button>
-      <button id="goToRanking">🏆 排行榜</button>
-      <button id="goToHelp">📖 使用說明</button>
-      <button id="goToHelpAdd">📱 加入手機主畫面說明</button>
+      <button id="goToLeaderboard">🏆 排行榜</button>
     </div>
   </div>
 
-  <!-- ================== 問答遊戲 ================== -->
+  <!-- 問答遊戲 -->
   <div id="quiz" class="section">
     <h1>問答遊戲</h1>
     <div id="playerSetup">
-      <label>玩家名稱：<input type="text" id="playerName" placeholder="輸入你的名稱" /></label>
+      <label>玩家名稱：
+        <input type="text" id="playerName" placeholder="允許中文/英文/數字/底線" />
+      </label>
+      <div class="hint">不允許特殊符號（!, @, # ...）。最多 16 個字，名稱不可重複。</div>
       <button id="startQuizBtn">開始答題</button>
     </div>
     <div id="quizArea" style="display:none;">
-      <div id="questionText"></div>
+      <div id="questionText" style="margin:8px 0 12px; font-weight:700;"></div>
       <div id="optionsContainer"></div>
       <button id="confirmAnswerBtn" disabled>確認答案</button>
     </div>
     <div id="quizResult" style="display:none;"></div>
-    <button class="backBtn" data-back="menu">返回主選單</button>
+    <button id="quizBackBtn" class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- ================== 題目管理 ================== -->
+  <!-- 題目管理 -->
   <div id="questionManage" class="section">
     <h1>題目管理（管理員）</h1>
-    <div id="adminLogin">
-      <label>管理者密碼：<input type="password" id="adminPassword" /></label>
-      <button id="loginAdminBtn">登入管理</button>
-    </div>
-    <div id="adminPanel" style="display:none;">
+    <div id="adminPanel">
+      <h3>新增題目</h3>
       <label>題目：<input type="text" id="newQuestion" /></label>
       <label>選項 A：<input type="text" id="optionA" /></label>
       <label>選項 B：<input type="text" id="optionB" /></label>
       <label>選項 C：<input type="text" id="optionC" /></label>
       <label>選項 D：<input type="text" id="optionD" /></label>
-      <label>正確答案（A-D）：<input type="text" id="correctOption" /></label>
+      <label>正確答案（A-D）：<input type="text" id="correctOption" placeholder="例如：A" /></label>
+      <button id="addQuestionBtn" class="btn">新增題目</button>
 
-      <div id="questionActions" style="margin-bottom:12px;">
-        <button id="addQuestionBtn">新增題目</button>
-      </div>
+      <h3>CSV 匯入 / 匯出</h3>
+      <input type="file" id="importCSV" accept=".csv" />
+      <button id="importBtn" class="btn">匯入 CSV</button>
+      <button id="exportCSVBtn" class="btn">匯出 CSV</button>
 
-      <!-- 匯入/匯出 CSV -->
-      <div style="margin-bottom:6px;">
-        <input type="file" id="importCSV" accept=".csv" />
-      </div>
-      <div style="display:flex; gap:6px; margin-bottom:12px;">
-        <button id="importBtn" style="flex:1;">匯入 CSV</button>
-        <button id="exportCSVBtn" style="flex:1;">匯出 CSV</button>
-      </div>
-
+      <h3>題庫列表</h3>
       <table id="questionTable">
-        <thead><tr><th>題目</th><th>A</th><th>B</th><th>C</th><th>D</th><th>正確答案</th><th>刪除</th></tr></thead>
+        <thead>
+          <tr><th>題目</th><th>A</th><th>B</th><th>C</th><th>D</th><th>正確答案</th><th>刪除</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
 
-  <!-- ================== 排行榜 ================== -->
-  <div id="ranking" class="section">
+  <!-- 排行榜 -->
+  <div id="leaderboard" class="section">
     <h1>排行榜</h1>
-    <table id="rankingTable">
-      <thead><tr><th>玩家名稱</th><th>分數</th><th>刪除</th></tr></thead>
+    <table id="leaderboardTable">
+      <thead>
+        <tr><th>排名</th><th>玩家名稱</th><th>分數</th><th>刪除</th></tr>
+      </thead>
       <tbody></tbody>
     </table>
     <button class="backBtn" data-back="menu">返回主選單</button>
   </div>
-
-  <!-- ================== 使用說明 ================== -->
-  <div id="help" class="section">
-    <h2>📖 使用說明</h2>
-    <p>點選問答遊戲開始答題，輸入玩家名稱即可開始。題目管理與排行榜有管理員權限限制。完成答題後可查看分數與答案。</p>
-    <button class="backBtn" data-back="menu">返回主選單</button>
-  </div>
-
-  <!-- ================== 加入手機主畫面說明 ================== -->
-  <div id="helpAdd" class="section">
-    <h2>📱 加入手機主畫面說明</h2>
-    <h3>iOS（Safari）</h3>
-    <ol>
-      <li>在 Safari 開啟此網頁</li>
-      <li>點選底部「分享」按鈕</li>
-      <li>選擇「加入主畫面」</li>
-      <li>確認名稱後點選「加入」</li>
-    </ol>
-    <h3>Android（Chrome）</h3>
-    <ol>
-      <li>在 Chrome 開啟此網頁</li>
-      <li>點選右上角「⋮」選單</li>
-      <li>選擇「加到主畫面」或「安裝應用程式」</li>
-      <li>確認名稱後點選「加入」</li>
-    </ol>
-    <button class="backBtn" data-back="menu">返回主選單</button>
-  </div>
 </div>
 
-<!-- ================== 排行榜刪除密碼 Modal ================== -->
-<div id="rankingPassModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-  <div style="background:#fff; padding:20px; border-radius:8px; width:300px;">
-    <p>輸入管理者密碼刪除：</p>
-    <input type="password" id="rankingPassInput" style="width:100%; margin-bottom:12px;" />
-    <div style="display:flex; justify-content:space-between;">
-      <button id="rankingPassConfirm">確認</button>
-      <button id="rankingPassCancel">取消</button>
+<!-- Modal 密碼輸入 -->
+<div id="passwordModal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">輸入密碼</h3>
+    <input type="password" id="passwordInput" placeholder="請輸入密碼" />
+    <div class="modal-btns">
+      <button id="passwordConfirmBtn">確認</button>
+      <button id="passwordCancelBtn">取消</button>
     </div>
   </div>
 </div>
 
-<!-- ================== JavaScript ================== -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  /* -------------------- 區塊切換 -------------------- */
-  const sections = { menu, quiz, questionManage, ranking, help, helpAdd };
-  const showSection = name => {
-    Object.values(sections).forEach(s => s.classList.remove('active'));
-    sections[name].classList.add('active');
-    if(name==='menu'){
-      quizArea.style.display='none';
-      playerSetup.style.display='block';
-      quizResult.style.display='none';
-      currentQuestionIndex=0;
-      playerAnswers=[];
-      selectedAnswer=null;
-      playerNameInput.value='';
-    }
-    if(name==='ranking'){
-      rankingPassVerified=false;
-    }
-  };
-  goToQuiz.onclick = ()=>showSection('quiz');
-  goToQuestionManage.onclick = ()=>showSection('questionManage');
-  goToRanking.onclick = ()=>showSection('ranking');
-  goToHelp.onclick = ()=>showSection('help');
-  goToHelpAdd.onclick = ()=>showSection('helpAdd');
-  document.querySelectorAll('.backBtn').forEach(btn=>btn.onclick=e=>showSection(e.target.dataset.back));
-
-  /* -------------------- 問答遊戲 -------------------- */
-  let questions = JSON.parse(localStorage.getItem('questions')||'[]');
-  let currentQuestionIndex=0;
-  let playerAnswers=[];
-  let playerName='';
-  let selectedAnswer=null;
-  const playerNameInput=document.getElementById('playerName');
-  const quizArea=document.getElementById('quizArea');
-  const questionText=document.getElementById('questionText');
-  const optionsContainer=document.getElementById('optionsContainer');
-  const quizResult=document.getElementById('quizResult');
-  const startQuizBtn=document.getElementById('startQuizBtn');
-  const confirmAnswerBtn=document.getElementById('confirmAnswerBtn');
-  const playerSetup=document.getElementById('playerSetup');
-
-  function loadQuestion(){
-    const q = questions[currentQuestionIndex];
-    questionText.textContent = `${currentQuestionIndex+1}. ${q.question}`;
-    optionsContainer.innerHTML='';
-    selectedAnswer=null;
-    confirmAnswerBtn.disabled=true;
-    ['A','B','C','D'].forEach(k=>{
-      if(q[k]){
-        const btn=document.createElement('button');
-        btn.textContent=`${k}: ${q[k]}`;
-        btn.className='optionBtn';
-        btn.style.backgroundColor = '#2b7a78';
-        btn.onclick=()=>{
-          selectedAnswer=k;
-          confirmAnswerBtn.disabled=false;
-          document.querySelectorAll('.optionBtn').forEach(b=>{
-            if(b!==btn) b.style.backgroundColor='#2b7a78';
-            else b.style.backgroundColor='red';
-          });
-        };
-        optionsContainer.appendChild(btn);
-      }
-    });
-  }
-
-  confirmAnswerBtn.onclick=()=>{
-    playerAnswers[currentQuestionIndex]=selectedAnswer;
-    if(currentQuestionIndex+1<questions.length){
-      currentQuestionIndex++;
-      loadQuestion();
-    }else showQuizResult();
-  }
-
-  startQuizBtn.onclick=startQuiz;
-  playerNameInput.addEventListener('keypress', e=>{ if(e.key==='Enter') startQuiz(); });
-
-  function startQuiz(){
-    const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
-    const playerNameSet = new Set(rankingData.map(p=>p.name));
-    playerName=playerNameInput.value.trim();
-    if(!playerName){ alert('請輸入玩家名稱'); return; }
-    if(playerNameSet.has(playerName)){ alert('玩家名稱已存在，請輸入新名稱'); return; }
-    if(questions.length===0){ alert('題庫為空'); return; }
-    currentQuestionIndex=0;
-    playerAnswers=[];
-    playerSetup.style.display='none';
-    quizArea.style.display='block';
-    quizResult.style.display='none';
-    loadQuestion();
-  }
-
-  function showQuizResult(){
-    quizArea.style.display='none';
-    quizResult.style.display='block';
-    let score=0;
-    let html=`<h3>${playerName} 的答題結果</h3><ol>`;
-    questions.forEach((q,i)=>{
-      const correct=q.correct;
-      const player=playerAnswers[i]||'-';
-      if(player===correct) score++;
-      html+=`<li>${q.question}<br>你的選擇：${player} | 正確答案：${correct}</li>`;
-    });
-    html+=`</ol><p>總分：${score}</p>`;
-    quizResult.innerHTML=html;
-
-    // 更新排行榜
-    const rankingData = JSON.parse(localStorage.getItem('ranking')||'[]');
-    if(rankingData.length >= 50){ // 玩家上限 50
-      rankingData.shift(); // 刪掉最舊玩家
-    }
-    rankingData.push({ name: playerName, score });
-    localStorage.setItem('ranking', JSON.stringify(rankingData));
-    updateRankingTable();
-  }
-
-  /* -------------------- 題目管理 -------------------- */
-  const adminPass='admin123';
-  const loginAdminBtn=document.getElementById('loginAdminBtn');
-  const adminPassword=document.getElementById('adminPassword');
-  const adminPanel=document.getElementById('adminPanel');
-  const addQuestionBtn=document.getElementById('addQuestionBtn');
-  const newQuestion=document.getElementById('newQuestion');
-  const optionA=document.getElementById('optionA');
-  const optionB=document.getElementById('optionB');
-  const optionC=document.getElementById('optionC');
-  const optionD=document.getElementById('optionD');
-  const correctOption=document.getElementById('correctOption');
-  const questionTable=document.getElementById('questionTable');
-  const importCSV=document.getElementById('importCSV');
-  const importBtn=document.getElementById('importBtn');
-  const exportCSVBtn=document.getElementById('exportCSVBtn');
-
-  loginAdminBtn.onclick=loginAdmin;
-  adminPassword.addEventListener('keypress', e=>{ if(e.key==='Enter') loginAdmin(); });
-
-  function loginAdmin(){
-    if(adminPassword.value===adminPass){
-      adminPanel.style.display='block';
-      adminLogin.style.display='none';
-    }else alert('密碼錯誤');
-  }
-
-  function updateQuestionTable(){
-    const tbody=questionTable.querySelector('tbody');
-    tbody.innerHTML='';
-    questions.forEach((q,i)=>{
-      const tr=document.createElement('tr');
-      ['question','A','B','C','D','correct'].forEach(k=>{
-        const td=document.createElement('td');
-        td.textContent=q[k]||'';
-        tr.appendChild(td);
-      });
-      const delTd=document.createElement('td');
-      const delBtn=document.createElement('button');
-      delBtn.textContent='刪除';
-      delBtn.onclick=()=>{
-        questions.splice(i,1); saveQuestions(); updateQuestionTable();
-      };
-      delTd.appendChild(delBtn);
-      tr.appendChild(delTd);
-      tbody.appendChild(tr);
-    });
-  }
-
-  addQuestionBtn.onclick=()=>{
-    if(questions.length>=10){ alert('題目已達上限 10 題'); return; }
-    if(!newQuestion.value.trim() || !optionA.value.trim() || !optionB.value.trim()){ alert('題目、A、B為必填'); return; }
-    questions.push({
-      question:newQuestion.value,
-      A:optionA.value, B:optionB.value,
-      C:optionC.value||'',
-      D:optionD.value||'',
-      correct:(correctOption.value||'A').toUpperCase()
-    });
-    saveQuestions();
-    updateQuestionTable();
-    newQuestion.value=''; optionA.value=''; optionB.value=''; optionC.value=''; optionD.value=''; correctOption.value='';
-  };
-
-  function saveQuestions(){ localStorage.setItem('questions', JSON.stringify(questions)); }
-
-  // 匯入 CSV（先清空再匯入）
-  importBtn.onclick=()=>{
-    const file = importCSV.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const lines=e.target.result.split('\n');
-      questions=[];
-      for(let line of lines){
-        if(questions.length>=10) break;
-        const [q,a,b,c,d,correct]=line.split(',');
-        if(q && a && b){
-          questions.push({question:q,A:a,B:b,C:c||'',D:d||'',correct:(correct||'A').toUpperCase()});
-        }
-      }
-      saveQuestions();
-      updateQuestionTable();
-      alert('CSV 匯入完成');
-    };
-    reader.readAsText(file,'UTF-8');
-  };
-
-  // 匯出 CSV
-  exportCSVBtn.onclick=()=>{
-    let csv='question,A,B,C,D,correct\n';
-    questions.forEach(q=>csv+=`${q.question},${q.A},${q.B},${q.C},${q.D},${q.correct}\n`);
-    const blob=new Blob([csv],{type:'text/csv'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download='questions.csv'; a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  /* -------------------- 排行榜 -------------------- */
-  let rankingPassVerified=false;
-  const rankingTable=document.getElementById('rankingTable').querySelector('tbody');
-  const rankingPassModal=document.getElementById('rankingPassModal');
-  const rankingPassInput=document.getElementById('rankingPassInput');
-  const rankingPassConfirm=document.getElementById('rankingPassConfirm');
-  const rankingPassCancel=document.getElementById('rankingPassCancel');
-
-  function updateRankingTable(){
-    rankingTable.innerHTML='';
-    const rankingData=JSON.parse(localStorage.getItem('ranking')||'[]');
-    rankingData.forEach((p,i)=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${p.name}</td><td>${p.score}</td>`;
-      const delTd=document.createElement('td');
-      const delBtn=document.createElement('button');
-      delBtn.textContent='刪除';
-      delBtn.onclick=()=>handleRankingDelete(i);
-      delTd.appendChild(delBtn);
-      tr.appendChild(delTd);
-      rankingTable.appendChild(tr);
-    });
-  }
-
-  function handleRankingDelete(index){
-    if(rankingPassVerified){
-      deleteRanking(index);
-    }else{
-      rankingPassModal.style.display='flex';
-      rankingPassInput.value='';
-      rankingPassInput.focus();
-      rankingPassConfirm.onclick=()=>{
-        if(rankingPassInput.value===adminPass){
-          rankingPassVerified=true;
-          deleteRanking(index);
-          rankingPassModal.style.display='none';
-        }else alert('密碼錯誤');
-      };
-      rankingPassCancel.onclick=()=>{ rankingPassModal.style.display='none'; };
-    }
-  }
-
-  function deleteRanking(index){
-    const rankingData=JSON.parse(localStorage.getItem('ranking')||'[]');
-    rankingData.splice(index,1);
-    localStorage.setItem('ranking',JSON.stringify(rankingData));
-    updateRankingTable();
-  }
-
-  updateQuestionTable();
-  updateRankingTable();
-});
-</script>
+<script src="script.js"></script>
 </body>
 </html>
