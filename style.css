@@ -34,7 +34,26 @@ th{ background:#f4f4f4; }
 /* 可展開文字 */
 .expandable{cursor:pointer;}
 
-/* 排行榜前三名顏色 */
-.gold{background:#FFD700; color:#000; font-weight:bold;}
-.silver{background:#C0C0C0; color:#000; font-weight:bold;}
-.bronze{background:#CD7F32; color:#000; font-weight:bold;}
+/* === 排行榜前三名獎牌樣式 === */
+.gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.silver {
+  background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(192, 192, 192, 0.7);
+}
+
+.bronze {
+  background: linear-gradient(135deg, #CD7F32, #8B4513);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.7);
+}
+
+
