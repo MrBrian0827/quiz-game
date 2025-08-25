@@ -31,29 +31,11 @@ th{ background:#f4f4f4; }
 .modal-btns{ display:flex; justify-content:space-around; margin-top:12px; }
 .modal input{ width:80%; margin:0 auto; display:block; }
 
-/* 可展開文字 */
-.expandable{cursor:pointer;}
+/* 可展開文字 + 平滑動畫 */
+.expandable{cursor:pointer; overflow:hidden; max-height:1.5em; transition:max-height 0.3s ease;}
+.expandable.expanded{white-space:normal; max-height:200px;}
 
-/* === 排行榜前三名獎牌樣式 === */
-.gold {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  color: #000;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-}
-
-.silver {
-  background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
-  color: #000;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(192, 192, 192, 0.7);
-}
-
-.bronze {
-  background: linear-gradient(135deg, #CD7F32, #8B4513);
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0 0 10px rgba(205, 127, 50, 0.7);
-}
-
-
+/* 排行榜前三名顏色 */
+.gold{background:#FFD700; color:#000; font-weight:bold;}
+.silver{background:#C0C0C0; color:#000; font-weight:bold;}
+.bronze{background:#CD7F32; color:#000; font-weight:bold;}
