@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>問答遊戲系統</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>問答遊戲系統</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="card">
@@ -29,11 +29,13 @@
       <div class="hint">不允許特殊符號（!, @, # ...）。最多 16 個字，名稱不可重複。</div>
       <button id="startQuizBtn">開始答題</button>
     </div>
+
     <div id="quizArea" style="display:none;">
       <div id="questionText" style="margin:8px 0 12px; font-weight:700;"></div>
       <div id="optionsContainer"></div>
       <button id="confirmAnswerBtn" disabled>確認答案</button>
     </div>
+
     <div id="quizResult" style="display:none;"></div>
     <button id="quizBackBtn" class="backBtn" data-back="menu">返回主選單</button>
   </div>
@@ -57,6 +59,9 @@
       <button id="exportCSVBtn" class="btn">匯出 CSV</button>
 
       <h3>題庫列表</h3>
+      <button id="clearQuestionsBtn" class="btn">一鍵刪除所有題目</button>
+      <button id="resetRestrictionsBtn" class="btn" onclick="resetPlayerRestrictions()">重置玩家限制</button>
+
       <table id="questionTable">
         <thead>
           <tr><th>題目</th><th>A</th><th>B</th><th>C</th><th>D</th><th>正確答案</th><th>刪除</th></tr>
